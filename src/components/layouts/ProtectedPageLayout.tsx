@@ -1,4 +1,5 @@
 import { FC, ReactNode } from 'react';
+import { Unauthorized } from '../unauthorized';
 
 type Props = {
   canAccess: boolean;
@@ -6,7 +7,7 @@ type Props = {
 };
 
 export const ProtectedPageLayout: FC<Props> = ({ canAccess, children }) => {
-  if (!canAccess) return <h1>You don't have permissions to see this content</h1>
+  if (!canAccess) return <Unauthorized />
 
   return (
     <>{children}</>

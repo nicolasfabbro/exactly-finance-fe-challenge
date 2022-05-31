@@ -3,12 +3,14 @@ import { MetaMaskInpageProvider } from "@metamask/providers";
 
 type MetaMaskContextTypes = {
   ethereum: MetaMaskInpageProvider | null;
+  isConnected: boolean;
   connectedAccount: string | undefined;
   connectAccount: () => void;
 };
 
 const MetaMaskAccountContext = createContext<MetaMaskContextTypes>({
   ethereum: null,
+  isConnected: false,
   connectedAccount: '',
   connectAccount: () => { },
 });
@@ -82,7 +84,12 @@ const MetaMaskAccountProvider: FC<ProviderProps> = ({ children }) => {
     getConnectedAccount()
   });
 
-  const value = { ethereum, connectedAccount, connectAccount };
+  const value = {
+    ethereum,
+    isConnected: Boolean(connectedAccount),
+    connectedAccount,
+    connectAccount
+  };
 
   return (
     <MetaMaskAccountContext.Provider value={value}>
