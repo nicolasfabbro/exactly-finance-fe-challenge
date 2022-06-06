@@ -26,6 +26,7 @@ type ProviderProps = {
   children?: ReactNode;
 };
 
+// @todo add disconnect method
 const MetaMaskAccountProvider = ({ children }: ProviderProps) => {
   const [ethereum, setEthereum] = useState<any>(null);
   const [connectedAccount, setConnectedAccount] = useState<string | undefined>('');
