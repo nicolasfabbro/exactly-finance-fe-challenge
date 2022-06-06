@@ -1,17 +1,16 @@
-import { useState, useEffect, createContext, useContext, FC, ReactNode } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { MetaMaskInpageProvider } from "@metamask/providers";
-import { ethers } from 'ethers';
-import cDAITokenAbi from '../utils/cDAITokenAbi.json';
+import { getBalance } from '../utils/getBalance';
 
 type MetaMaskContextTypes = {
+  // @todo: type eth
   ethereum: any;
   isConnected: boolean;
   connectedAccount: string | undefined;
   connectAccount: () => void;
   accountBalance: {
-    eth?: string;
-    cdai?: any;
-    dai?: any;
+    cdai?: string;
+    dai?: string;
   };
 };
 
@@ -24,16 +23,16 @@ const MetaMaskAccountContext = createContext<MetaMaskContextTypes>({
 });
 
 type ProviderProps = {
-  children: ReactNode;
+  children?: ReactNode;
 };
 
-const MetaMaskAccountProvider: FC<ProviderProps> = ({ children }) => {
-  const cDAIAddress = '0xF0d0EB522cfa50B716B3b1604C4F0fA6f04376AD';
-  const DAIAddress = '0x468409860F155Ec6A90ba64ecBa077eaA6C1f5A5';
-
+const MetaMaskAccountProvider = ({ children }: ProviderProps) => {
   const [ethereum, setEthereum] = useState<any>(null);
   const [connectedAccount, setConnectedAccount] = useState<string | undefined>('');
-  const [balance, setBalance] = useState<MetaMaskContextTypes['accountBalance']>({});
+  const [balance, setBalance] = useState<MetaMaskContextTypes['accountBalance']>({
+    cdai: '0',
+    dai: '0',
+  });
 
   const setEthereumFromWindow = async () => {
     if (window.ethereum) {
@@ -48,6 +47,7 @@ const MetaMaskAccountProvider: FC<ProviderProps> = ({ children }) => {
       if (chainId === kovanId) {
         setEthereum(window.ethereum);
       } else {
+        // @todo add error handling
         alert('Please use Kovan network');
       }
     }
@@ -89,20 +89,12 @@ const MetaMaskAccountProvider: FC<ProviderProps> = ({ children }) => {
 
   const getAccountBalance = async () => {
     if (ethereum && connectedAccount) {
-      const provider = new ethers.providers.Web3Provider(ethereum, "any");
-
-      const cDAIContract = new ethers.Contract(cDAIAddress, cDAITokenAbi, provider);
-      const cDAIBalance = await cDAIContract.balanceOf(connectedAccount);
-
-      // const DAIContract = new ethers.Contract(DAIAddress, cDAITokenAbi, provider);
-      // const DAIBalance = await DAIContract.balanceOf(connectedAccount);
-
-      const ethBalance = await provider.getBalance(connectedAccount);
+      const cdaiBalance = await getBalance(ethereum, 'cdai', connectedAccount);
+      const daiBalance = await getBalance(ethereum, 'dai', connectedAccount);
 
       return {
-        eth: ethers.utils.formatEther(ethBalance),
-        cdai: cDAIBalance.toString(),
-        // dai: DAIBalance.toString(),
+        cdai: cdaiBalance,
+        dai: daiBalance,
       }
     }
   };
@@ -115,6 +107,7 @@ const MetaMaskAccountProvider: FC<ProviderProps> = ({ children }) => {
   useEffect(() => {
     getConnectedAccount();
 
+    // @todo: add error handling
     getAccountBalance().then(res => {
       setBalance(res || {});
     })

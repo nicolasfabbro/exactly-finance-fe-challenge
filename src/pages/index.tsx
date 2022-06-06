@@ -13,7 +13,6 @@ const Home: NextPage = () => {
       <h1>Exactly finance</h1>
       ------------------------
       <h3>Connected account: {connectedAccount}</h3>
-      <h6>Balance: ETH {accountBalance?.eth}</h6>
       <h6>Balance: cDAI {accountBalance?.cdai}</h6>
       <h6>Balance: DAI {accountBalance?.dai}</h6>
     </ProtectedPageLayout>
